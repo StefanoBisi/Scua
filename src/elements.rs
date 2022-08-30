@@ -1,5 +1,5 @@
 use rand::{self, Rng};
-use std::array::IntoIter;
+use std::{array::IntoIter, str::FromStr};
 
 #[derive(Copy, Clone)]
 pub enum Suit {
@@ -95,26 +95,56 @@ pub struct Card {
 }
 
 impl Card {
-    pub fn to_string(&self) -> String {
-        let mut _str: String = String::from("");
-        _str.push(suit_to_char(&self.suit));
-        _str.push(card_to_char(&self.card_type));
-        _str
-    }
-
-    pub fn from_string(_card_str: String) -> Option<Card> {
-        if _card_str.len() != 2 {
-            None
-        } else {
-            let mut iter = _card_str.chars();
-            let suit = char_to_suit(iter.next()?)?;
-            let card_type = char_to_card(iter.next()?)?;
-            Some(Card { suit, card_type })
-        }
-    }
 
     pub fn value(&self) -> usize {
         card_value(&self.card_type)
+    }
+}
+
+impl ToString for Card {
+    fn to_string(&self) -> String {
+        format!("{}{}", suit_to_char(&self.suit), card_to_char(&self.card_type))
+    }
+}
+
+pub enum CardStrErr {
+    LengthErr(usize),
+    SuitErr(char),
+    CardTypeErr(char),
+    IterErr
+}
+
+impl FromStr for Card {
+    type Err = CardStrErr;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let len = s.len();
+        if len != 2 {
+            Err(CardStrErr::LengthErr(len))
+        } else {
+            let mut iter = s.chars();
+            let suit_char;
+            match iter.next() {
+                Some(chr) => {suit_char = chr;}
+                None => return Err(CardStrErr::IterErr)
+            }
+            let suit;
+            match char_to_suit(suit_char) {
+                Some(_suit) => {suit = _suit}
+                None => return Err(CardStrErr::SuitErr(suit_char))
+            }
+            let type_char;
+            match iter.next() {
+                Some(chr) => {type_char = chr;}
+                None => return Err(CardStrErr::IterErr)
+            }
+            let card_type;
+            match char_to_card(type_char) {
+                Some(_type) => {card_type = _type}
+                None => return Err(CardStrErr::CardTypeErr(type_char))
+            }
+            Ok(Card { suit, card_type})
+        }
     }
 }
 
