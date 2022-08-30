@@ -15,7 +15,7 @@ enum TeamPlayer {
 
 struct Prize {
     stack: Vec<Card>,
-    brush_count: usize,
+    scopa_count: usize,
 }
 
 struct Team {
@@ -74,8 +74,8 @@ impl Game {
         let prize: &mut Prize = &mut self.team_mut(team_side).prize;
         prize.stack.push(prize_card);
         if len == 0 {
-            // If this was the last card on board, one brush point is scored
-            prize.brush_count += 1;
+            // If this was the last card on board, one scopa point is scored
+            prize.scopa_count += 1;
         }
     }
 
